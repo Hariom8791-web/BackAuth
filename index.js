@@ -18,8 +18,7 @@ app.use(cors({
     //front end jaha host ho rha h / nhi ayega
 
     origin:["https://front-auth-mu.vercel.app"],
-
-
+    allowedHeaders: ['Content-Type', 'Authorization'],
     method :["POST","GET"],
     credentials:true,
 }))
