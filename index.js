@@ -32,10 +32,15 @@ app.use(cors({
     method :["POST","GET"],
     credentials:true,
 }))
+app.get('/', (req, res) => {
+    res.json("Hello from the root!");
+});
+
 app.use('/auth',UserRouter)
-// app.listen(process.env.PORT,()=>{
-//     console.log("server is running")
-// })
+const port = process.env.PORT || 3000; // Use process.env.PORT for dynamic port assigned by Vercel
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
 
 
 mongoose.connect('mongodb+srv://hariomsingh4274:FJFZiGBqhAZRv3SR@cluster0.vlrs0o5.mongodb.net/Base?retryWrites=true&w=majority&appName=Cluster0')
