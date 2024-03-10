@@ -28,7 +28,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors({
     //front end jaha host ho rha h / nhi ayega
-    origin:["http://localhost:5173"],
+    origin:["https://front-auth-lemon.vercel.app"],
     method :["POST","GET"],
     credentials:true,
 }))
