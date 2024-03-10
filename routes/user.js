@@ -242,7 +242,7 @@ router.post('/Verification',async (req,res)=>{
 }) 
 
 router.post('/Login' , async (req,res)=>{
-    
+
 const{Email,password}=req.body;
 
 
@@ -256,7 +256,7 @@ if(emailmatch==null){
 const passwordMatch = await bcrypt.compare(password, emailmatch.password);
 if (passwordMatch){
     console.log("Password comparison result: true");
-    req.session.username = emailmatch.username
+     req.session.username = emailmatch.username
     console.log(req.session.username)
     sessionusername=emailmatch.username
     return res.json({status:true,message:" successfully login"})
