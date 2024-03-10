@@ -33,9 +33,9 @@ app.use(cors({
     credentials:true,
 }))
 app.use('/auth',UserRouter)
-app.listen(process.env.PORT,()=>{
-    console.log("server is running")
-})
+// app.listen(process.env.PORT,()=>{
+//     console.log("server is running")
+// })
 
 
 mongoose.connect('mongodb+srv://hariomsingh4274:FJFZiGBqhAZRv3SR@cluster0.vlrs0o5.mongodb.net/Base?retryWrites=true&w=majority&appName=Cluster0')
