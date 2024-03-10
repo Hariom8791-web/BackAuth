@@ -29,7 +29,7 @@ app.use(bodyParser.json());
 app.use(cors({
     //front end jaha host ho rha h / nhi ayega
 
-    origin:["https://front-auth-6l87tqdc4-harry-singhs-projects.vercel.app"],
+    origin:["https://front-auth-mu.vercel.app"],
 
 
     method :["POST","GET"],
