@@ -156,7 +156,7 @@ router.post('/ChetakMail', async (req,res)=>{
     console.log(" inside decode",decoded)
     
     if(decoded.username==sessionusername){
-        return res.json({valid:true ,username:req.session.username})
+        return res.json({valid:true ,username:decoded.username})
     }
     else {
         return res.json({valid :false,message:"token expired"})
