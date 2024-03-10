@@ -15,6 +15,7 @@ var tempusername;
 var temppassword;
 var tempemail;
 var sessionusername;
+var sessiontokenz
 router.get('/',(req,res)=>{
     res.json("Hello")
 })
@@ -140,17 +141,27 @@ router.post('/ChetakMail', async (req,res)=>{
       return res.json({status:true, error: 'Email sent successfully' });
     }
   });
-router.post('/logout', (req, res) => {
-    // Destroy the session
-    req.session.destroy(err => {
-      if (err) {
-        console.error('Error destroying session:', err);
-        return res.status(500).json({ status: false, message: 'Failed to logout' });
-      }
-      // Send a response indicating successful logout
-      return res.json({ status: true, message: 'Logout successful' });
-    });
+
+  router.post('/logout', async  (req, res) => {
+    const {username}=req.body
+    // const expire =  await jwt.sign({ username: username}, process.env.KEY_session, { expiresIn: '5s' });
+    sessionusername=null;
+    return res.json({status:true})
   });
+
+
+  router.get('/Dashboard',async (req,res)=>{
+    
+    const decoded = await jwt.verify(sessiontokenz, process.env.KEY_session);
+    console.log(" inside decode",decoded)
+    
+    if(decoded.username==sessionusername){
+        return res.json({valid:true ,username:req.session.username})
+    }
+    else {
+        return res.json({valid :false,message:"token expired"})
+    }
+})
 
 router.get('/Dashboard',(req,res)=>{
     if(req.session.username){
@@ -259,6 +270,8 @@ if (passwordMatch){
      req.session.username = emailmatch.username
     console.log(req.session.username)
     sessionusername=emailmatch.username
+    sessiontokenz = jwt.sign({ username: emailmatch.username }, process.env.KEY_session, { expiresIn: '2h' });
+    console.log("jwtsessiontoken create",sessiontokenz,sessionusername)
     return res.json({status:true,message:" successfully login"})
 } else {
     console.log("Password comparison result: false");
