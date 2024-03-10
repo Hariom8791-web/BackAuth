@@ -262,7 +262,7 @@ if (passwordMatch){
     return res.json({status:true,message:" successfully login"})
 } else {
     console.log("Password comparison result: false");
-    return res.json({status:true,message:" Enter Password correctly login "})
+    return res.json({status:false,message:" Enter Password correctly login "})
 }
 
 })
