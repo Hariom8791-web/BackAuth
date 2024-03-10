@@ -11,18 +11,6 @@ import { UserRouter } from './routes/user.js'
 const app=express()
 app.use(bodyParser.json())
 app.use(cookieParser())
-app.use(session({
-    secret : 'secret',
-    resave:false,
-    saveUninitialized:false,
-    cookie:{    
-        secure : false,
-        maxAge : 1000 * 60 * 60 *24
-
-    }
-
-
-}))
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
@@ -35,6 +23,20 @@ app.use(cors({
     method :["POST","GET"],
     credentials:true,
 }))
+app.use(session({
+    secret : 'secret',
+    resave:false,
+    saveUninitialized:false,
+    cookie:{    
+        secure : false,
+        maxAge : 1000 * 60 * 60 *24
+
+    }
+
+
+}))
+
+
 app.get('/', (req, res) => {
     res.json("Hello from the root!");
 });
