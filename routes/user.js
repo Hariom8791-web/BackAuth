@@ -144,7 +144,7 @@ router.post('/ChetakMail', async (req,res)=>{
 
   router.post('/logout', async  (req, res) => {
     const {username}=req.body
-    // const expire =  await jwt.sign({ username: username}, process.env.KEY_session, { expiresIn: '5s' });
+    const expire =  await jwt.sign({ username: username}, process.env.KEY_session, { expiresIn: '1s' });
     sessionusername=null;
     return res.json({status:true})
   });
