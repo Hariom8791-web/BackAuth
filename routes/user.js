@@ -322,7 +322,7 @@ router.post('/Login' , async (req,res)=>{
         console.log("Password comparison result: true");
         // req.session.username = emailmatch.username
         // console.log(req.session.username)
-            sessionusername=emailmatch.username
+        sessionusername = emailmatch.username;
         sessiontokenz =  await jwt.sign({ username: emailmatch.username }, process.env.KEY_session, { expiresIn: '2h' });
         console.log("jwtsessiontoken create",sessiontokenz,sessionusername)
         res.cookie('token', sessiontokenz, { httpOnly: true }); // Set the JWT token as an HTTP-only cookie
