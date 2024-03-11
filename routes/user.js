@@ -274,10 +274,10 @@ router.post('/Verification',async (req,res)=>{
 
 }) 
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+    const { Email, password } = req.body;
   
     // Find the user by email
-    const user = await Appdb.findOne({ email:email });
+    const user = await Appdb.findOne({ email:Email });
     if (!user) {
       return res.json({ status: false, message: 'Invalid email' });
     }
