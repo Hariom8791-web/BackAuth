@@ -16,9 +16,9 @@ var temppassword;
 var tempemail;
 var sessionusername;
 var sessiontokenz
-router.get('/',(req,res)=>{
-    res.json("Hello")
-})
+// router.get('/',(req,res)=>{
+//     res.json("Hello")
+// })
 router.post('/Forgotpassword', async (req, res) => {
     const { email } = req.body
     console.log(email)
@@ -77,19 +77,19 @@ router.post("/resetPassword/:token", async (req, res) => {
     }
 });
 
-const verifyUser = async (req, res, next) => {
-    try {
-        const token = req.cookies.token;
-        if (!token) {
-            return res.json({ status: false, message: "no token" });
-        }
-        const decoded = await jwt.verify(token, process.env.KEY);
-        next()
+// const verifyUser = async (req, res, next) => {
+//     try {
+//         const token = req.cookies.token;
+//         if (!token) {
+//             return res.json({ status: false, message: "no token" });
+//         }
+//         const decoded = await jwt.verify(token, process.env.KEY);
+//         next()
 
-    } catch (err) {
-        return res.json(err);
-    }
-};
+//     } catch (err) {
+//         return res.json(err);
+//     }
+// };
 
 
 router.post('/ChetakMail', async (req,res)=>{
@@ -163,14 +163,7 @@ router.post('/ChetakMail', async (req,res)=>{
     }
 })
 
-router.get('/Dashboard',(req,res)=>{
-    if(req.session.username){
-        return res.json({valid:true ,username:req.session.username})
-    }
-    else {
-        return res.json({valid :false})
-    }
-})
+
 
 router.post('/signup',async (req,res)=>{
     const {username,email,password}=req.body
