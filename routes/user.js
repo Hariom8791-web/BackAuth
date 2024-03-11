@@ -40,7 +40,7 @@ router.post('/Forgotpassword', async (req, res) => {
             from: 'hariomsingh8791@gmail.com',
             to: email,
             subject: 'Reset Bhai amazing work',
-            text: `http://localhost:5173/resetPassword/${tokens}`
+            text: `https://front-auth-mu.vercel.app/resetPassword/${tokens}`
         };
 
         transporter.sendMail(mailOptions, function (error, info) {
@@ -277,7 +277,7 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
   
     // Find the user by email
-    const user = await Appdb.findOne({ email });
+    const user = await Appdb.findOne({ email:email });
     if (!user) {
       return res.json({ status: false, message: 'Invalid email' });
     }
