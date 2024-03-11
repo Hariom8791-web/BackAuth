@@ -75,19 +75,19 @@ router.post("/resetPassword/:token", async (req, res) => {
     }
 });
 
-const verifyUser = async (req, res, next) => {
-    try {
-        const token = req.cookies.token;
-        if (!token) {
-            return res.json({ status: false, message: "no token" });
-        }
-        const decoded = await jwt.verify(token, process.env.KEY);
-        next()
+// const verifyUser = async (req, res, next) => {
+//     try {
+//         const token = req.cookies.token;
+//         if (!token) {
+//             return res.json({ status: false, message: "no token" });
+//         }
+//         const decoded = await jwt.verify(token, process.env.KEY);
+//         next()
 
-    } catch (err) {
-        return res.json(err);
-    }
-};
+//     } catch (err) {
+//         return res.json(err);
+//     }
+// };
 
 
 router.post('/ChetakMail', async (req,res)=>{
@@ -273,31 +273,55 @@ router.post('/Verification',async (req,res)=>{
     }
 
 }) 
-router.post('/Login' , async (req,res)=>{
-    const{Email,password}=req.body;
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
   
-    console.log(password,Email)
+    // Find the user by email
+    const user = await Appdb.findOne({ email });
+    if (!user) {
+      return res.json({ status: false, message: 'Invalid email or password' });
+    }
   
-    const emailmatch = await Appdb.findOne({ email: Email });
-    console.log(emailmatch)
-    if(emailmatch==null){
-        return res.json({status:false,message:"Email not found"})
+    // Compare the provided password with the stored hash
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.json({ status: false, message: 'Invalid email or password' });
     }
-    const passwordMatch = await bcrypt.compare(password, emailmatch.password);
-    if (passwordMatch){
-        console.log("Password comparison result: true");
-        // req.session.username = emailmatch.username
-        // console.log(req.session.username)
-        sessionusername = emailmatch.username;
-        sessiontokenz =  await jwt.sign({ username: emailmatch.username }, process.env.KEY_session, { expiresIn: '2h' });
-        console.log("jwtsessiontoken create",sessiontokenz,sessionusername)
-        res.cookie('token', sessiontokenz, { httpOnly: true }); // Set the JWT token as an HTTP-only cookie
-        return res.json({status:true,message:" successfully login"})
-    } else {
-        console.log("Password comparison result: false");
-        return res.json({status:false,message:" Enter Password correctly login "})
-    }
-  })
+  
+    // Generate a JWT token
+    const token = jwt.sign({ id: user._id }, process.env.KEY, { expiresIn: '1h' });
+  
+    // Set the token cookie
+    res.cookie('token', token, { httpOnly: true });
+  
+    // Return a success response
+    return res.json({ status: true, message: 'Logged in successfully' });
+  });
+// router.post('/Login' , async (req,res)=>{
+//     const{Email,password}=req.body;
+  
+//     console.log(password,Email)
+  
+//     const emailmatch = await Appdb.findOne({ email: Email });
+//     console.log(emailmatch)
+//     if(emailmatch==null){
+//         return res.json({status:false,message:"Email not found"})
+//     }
+//     const passwordMatch = await bcrypt.compare(password, emailmatch.password);
+//     if (passwordMatch){
+//         console.log("Password comparison result: true");
+//         // req.session.username = emailmatch.username
+//         // console.log(req.session.username)
+//         sessionusername = emailmatch.username;
+//         sessiontokenz =  await jwt.sign({ username: emailmatch.username }, process.env.KEY_session, { expiresIn: '2h' });
+//         console.log("jwtsessiontoken create",sessiontokenz,sessionusername)
+//         res.cookie('token', sessiontokenz, { httpOnly: true }); // Set the JWT token as an HTTP-only cookie
+//         return res.json({status:true,message:" successfully login"})
+//     } else {
+//         console.log("Password comparison result: false");
+//         return res.json({status:false,message:" Enter Password correctly login "})
+//     }
+//   })
 
 // router.post('/Login' , async (req,res)=>{
     
