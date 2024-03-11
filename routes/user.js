@@ -152,7 +152,7 @@ router.post('/ChetakMail', async (req,res)=>{
 //   });
 router.post('/logout', async (req, res) => {
     const newToken = jwt.sign({ username: sessionusername }, process.env.KEY_session, { expiresIn: '1s' });
-    res.cookie('token', newToken, { httpOnly: true });
+    // res.cookie('token', newToken, { httpOnly: true });
     sessionusername = null;
     return res.json({ status: true, message: 'Logged out' });
   });
@@ -165,14 +165,7 @@ router.post('/logout', async (req, res) => {
 //     }
 // })
 router.get('/Dashboard', async (req, res) => {
-    const token = req.cookies.token;
-  
-    if (!token) {
-      return res.json({ valid: false, message: "No token" });
-    }
-  
-    try {
-      const decoded = jwt.verify(token, process.env.KEY_session);
+      const decoded = jwt.verify(sessiontokenz, process.env.KEY_session);
       console.log(" inside decode", decoded);
   
       if(decoded.username === sessionusername) {
@@ -180,18 +173,6 @@ router.get('/Dashboard', async (req, res) => {
       } else {
         return res.json({ valid: false, message: "Invalid token" });
       }
-    } catch (error) {
-      console.error('Error while verifying token:', error);
-  
-      // If the token is expired, shorten the expiration time and send a new token
-      if (error.name === 'TokenExpiredError') {
-        const newToken = jwt.sign({ username: sessionusername }, process.env.KEY_session, { expiresIn: '1s' });
-        res.cookie('token', newToken, { httpOnly: true });
-        return res.json({ valid: false, message: "Token expired", newToken });
-      }
-  
-      return res.json({ valid: false, message: "Invalid token" });
-    }
   });
 
 router.post('/signup',async (req,res)=>{
@@ -289,10 +270,11 @@ router.post('/login', async (req, res) => {
     }
   
     // Generate a JWT token
+    sessionusername=user;
     const token = jwt.sign({ id: user._id }, process.env.KEY, { expiresIn: '1h' });
-  
+    sessiontokenz=token;
     // Set the token cookie
-    res.cookie('token', token, { httpOnly: true,secure: true, sameSite: 'none'  });
+    // res.cookie('token', token, { httpOnly: true,secure: true, sameSite: 'none'  });
   
     // Return a success response
     return res.json({ status: true, message: 'Logged in successfully' });
