@@ -5,7 +5,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import bodyParser from 'body-parser';
-import redis from 'connect-redis';
+
 dotenv.config()
 import { UserRouter } from './routes/user.js'
 
