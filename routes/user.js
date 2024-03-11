@@ -183,7 +183,7 @@ router.post('/signup',async (req,res)=>{
       const newUser= new User({
           username,
           email,
-          password:hashpassword,
+          password:password,
       })
           await newUser.save()
           tempemail=email
