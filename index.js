@@ -5,6 +5,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import bodyParser from 'body-parser';
+import redis from 'connect-redis';
 dotenv.config()
 import { UserRouter } from './routes/user.js'
 
@@ -17,7 +18,7 @@ app.use(bodyParser.json());
 app.use(cors({
     //front end jaha host ho rha h / nhi ayega
 
-    origin:["https://front-auth-mu.vercel.app"],
+    origin:["*"],
     method :["*"],
     credentials:true,
 }))
@@ -27,7 +28,7 @@ app.use(session({
     saveUninitialized:false,
     cookie:{    
         secure : true,
-        maxAge : 1000 * 60 * 60 *24
+        maxAge : 1000 * 60 * 60 
 
     }
 
