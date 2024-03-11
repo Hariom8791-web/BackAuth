@@ -142,28 +142,62 @@ router.post('/ChetakMail', async (req,res)=>{
     }
   });
 
-  router.post('/logout', async  (req, res) => {
-    const {username}=req.body
-    const expire =  await jwt.sign({ username: username}, process.env.KEY_session, { expiresIn: '1s' });
-    sessionusername=null;
-    return res.json({status:true})
+//   router.post('/logout', async  (req, res) => {
+//     const {username}=req.body
+//     const expire =  await jwt.sign({ username: username}, process.env.KEY_session, { expiresIn: '1s' });
+//     sessionusername=null;
+//     return res.json({status:true})
+//   });
+router.post('/logout', async (req, res) => {
+    const newToken = jwt.sign({ username: sessionusername }, process.env.KEY_session, { expiresIn: '1s' });
+    res.cookie('token', newToken, { httpOnly: true });
+    sessionusername = null;
+    return res.json({ status: true, message: 'Logged out' });
   });
 
 
-  router.get('/Dashboard',async (req,res)=>{
+//   router.get('/Dashboard',async (req,res)=>{
     
-    const decoded = await jwt.verify(sessiontokenz, process.env.KEY_session);
-    console.log(" inside decode",decoded)
+//     const decoded = await jwt.verify(sessiontokenz, process.env.KEY_session);
+//     console.log(" inside decode",decoded)
     
-    if(decoded.username==sessionusername){
-        return res.json({valid:true ,username:decoded.username})
-    }
-    else {
-        return res.json({valid :false,message:"token expired"})
-    }
-})
+//     if(decoded.username==sessionusername){
+//         return res.json({valid:true ,username:decoded.username})
+//     }
+//     else {
+//         return res.json({valid :false,message:"token expired"})
+//     }
+// })
 
-
+router.get('/Dashboard', async (req, res) => {
+    const token = req.cookies.token;
+  
+    if (!token) {
+      return res.json({ valid: false, message: "No token" });
+    }
+  
+    try {
+      const decoded = jwt.verify(token, process.env.KEY_session);
+      console.log(" inside decode", decoded);
+  
+      if(decoded.username === sessionusername) {
+        return res.json({ valid: true, username: decoded.username });
+      } else {
+        return res.json({ valid: false, message: "Invalid token" });
+      }
+    } catch (error) {
+      console.error('Error while verifying token:', error);
+  
+      // If the token is expired, shorten the expiration time and send a new token
+      if (error.name === 'TokenExpiredError') {
+        const newToken = jwt.sign({ username: sessionusername }, process.env.KEY_session, { expiresIn: '1s' });
+        res.cookie('token', newToken, { httpOnly: true });
+        return res.json({ valid: false, message: "Token expired", newToken });
+      }
+  
+      return res.json({ valid: false, message: "Invalid token" });
+    }
+  });
 
 router.post('/signup',async (req,res)=>{
     const {username,email,password}=req.body
@@ -245,33 +279,59 @@ router.post('/Verification',async (req,res)=>{
 
 }) 
 
+// router.post('/Login' , async (req,res)=>{
+
+// const{Email,password}=req.body;
+
+
+// console.log(password,Email)
+
+// const emailmatch = await Appdb.findOne({ email: Email });
+// console.log(emailmatch)
+// if(emailmatch==null){
+//     return res.json({status:false,message:"Email not found"})
+// }
+// const passwordMatch = await bcrypt.compare(password, emailmatch.password);
+// if (passwordMatch){
+//     console.log("Password comparison result: true");
+//      req.session.username = emailmatch.username
+//     console.log(req.session.username)
+//     sessionusername=emailmatch.username
+//     sessiontokenz = jwt.sign({ username: emailmatch.username }, process.env.KEY_session, { expiresIn: '2h' });
+//     console.log("jwtsessiontoken create",sessiontokenz,sessionusername)
+//     return res.json({status:true,message:" successfully login"})
+// } else {
+//     console.log("Password comparison result: false");
+//     return res.json({status:false,message:" Enter Password correctly login "})
+// }
+
+// })
+// userRoutes.js
 router.post('/Login' , async (req,res)=>{
-
-const{Email,password}=req.body;
-
-
-console.log(password,Email)
-
-const emailmatch = await Appdb.findOne({ email: Email });
-console.log(emailmatch)
-if(emailmatch==null){
-    return res.json({status:false,message:"Email not found"})
-}
-const passwordMatch = await bcrypt.compare(password, emailmatch.password);
-if (passwordMatch){
-    console.log("Password comparison result: true");
-     req.session.username = emailmatch.username
-    console.log(req.session.username)
-    sessionusername=emailmatch.username
-    sessiontokenz = jwt.sign({ username: emailmatch.username }, process.env.KEY_session, { expiresIn: '2h' });
-    console.log("jwtsessiontoken create",sessiontokenz,sessionusername)
-    return res.json({status:true,message:" successfully login"})
-} else {
-    console.log("Password comparison result: false");
-    return res.json({status:false,message:" Enter Password correctly login "})
-}
-
-})
+    const{Email,password}=req.body;
+  
+    console.log(password,Email)
+  
+    const emailmatch = await Appdb.findOne({ email: Email });
+    console.log(emailmatch)
+    if(emailmatch==null){
+        return res.json({status:false,message:"Email not found"})
+    }
+    const passwordMatch = await bcrypt.compare(password, emailmatch.password);
+    if (passwordMatch){
+        console.log("Password comparison result: true");
+        // req.session.username = emailmatch.username
+        // console.log(req.session.username)
+            sessionusername=emailmatch.username
+        sessiontokenz =  await jwt.sign({ username: emailmatch.username }, process.env.KEY_session, { expiresIn: '2h' });
+        console.log("jwtsessiontoken create",sessiontokenz,sessionusername)
+        res.cookie('token', sessiontokenz, { httpOnly: true }); // Set the JWT token as an HTTP-only cookie
+        return res.json({status:true,message:" successfully login"})
+    } else {
+        console.log("Password comparison result: false");
+        return res.json({status:false,message:" Enter Password correctly login "})
+    }
+  })
 
 router.post('/AppPasssword', async (req, res) => {
     const { Appemail, AppPassword } = req.body;
