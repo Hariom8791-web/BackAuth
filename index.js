@@ -18,7 +18,7 @@ app.use(cors({
     //front end jaha host ho rha h / nhi ayega
 
     origin:["*"],
-    method :["POST","GET"],
+    method :["*"],
     credentials:true,
 }))
 // app.use(session({
