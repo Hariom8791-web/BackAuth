@@ -21,6 +21,9 @@ app.use(cors({
     method :["POST","GET"],
     credentials:true,
 }))
+app.get('/',(req,res)=>{
+     res.json('hello ')
+})
 app.use('/auth',UserRouter)
 app.listen(process.env.PORT,()=>{
     console.log("server is running")
