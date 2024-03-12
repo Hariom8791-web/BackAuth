@@ -15,8 +15,11 @@ var tempusername;
 var temppassword;
 var tempemail;
 var sessionusername;
+var globaldecoded;
 var sessiontokenz;
-
+router.get('/',(req,res)=>{
+    res.json("Hello")
+})
 router.post('/Forgotpassword', async (req, res) => {
     const { email } = req.body
     console.log(email)
@@ -39,8 +42,8 @@ router.post('/Forgotpassword', async (req, res) => {
         var mailOptions = {
             from: 'hariomsingh8791@gmail.com',
             to: email,
-            subject: 'Reset Bhai amazing work',
-            text: `https://front-auth-mu.vercel.app/resetPassword/${tokens}`
+            subject: 'Reset Link for Password Brain Radar',
+            text: `http://localhost:5173/resetPassword/${tokens}`
         };
 
         transporter.sendMail(mailOptions, function (error, info) {
@@ -75,24 +78,9 @@ router.post("/resetPassword/:token", async (req, res) => {
     }
 });
 
-// const verifyUser = async (req, res, next) => {
-//     try {
-//         const token = req.cookies.token;
-//         if (!token) {
-//             return res.json({ status: false, message: "no token" });
-//         }
-//         const decoded = await jwt.verify(token, process.env.KEY);
-//         next()
-
-//     } catch (err) {
-//         return res.json(err);
-//     }
-// };
-
-
 router.post('/ChetakMail', async (req,res)=>{
     const { emails,textmsg,subject,htmlFile,name} = req.body;
-    console.log(emails,textmsg,subject,htmlFile) 
+    console.log(emails,textmsg,subject,htmlFile,name ) 
     const doc = await Appdb.findOne({ username:name });
     const appemail = await doc.Appemail;
     const apppassword = await doc.AppPassword;
@@ -136,44 +124,31 @@ router.post('/ChetakMail', async (req,res)=>{
       return res.json({ status: true, message: 'Emails final successfully'});
     } catch (error) {
       console.error('Error sending emails:', error);
-      return res.json({status:false, error: 'Failed to send emails' });
+      return res.json({status:true, error: 'Email sent successfully' });
     }
   });
-// router.post('/logout', (req, res) => {
-//     // Destroy the session
-//     req.session.destroy(err => {
-//       if (err) {
-//         console.error('Error destroying session:', err);
-//         return res.status(500).json({ status: false, message: 'Failed to logout' });
-//       }
-//       // Send a response indicating successful logout
-//       return res.json({ status: true, message: 'Logout successful' });
-//     });
-//   });
-router.post('/logout', async (req, res) => {
-    const newToken = jwt.sign({ username: sessionusername }, process.env.KEY_session, { expiresIn: '1s' });
-    // res.cookie('token', newToken, { httpOnly: true });
-    sessionusername = null;
-    return res.json({ status: true, message: 'Logged out' });
-  });
-// router.get('/Dashboard',(req,res)=>{
-//     if(req.session.username){
-//         return res.json({valid:true ,username:req.session.username})
-//     }
-//     else {
-//         return res.json({valid :false})
-//     }
-// })
-router.get('/Dashboard', async (req, res) => {
-      const decoded = jwt.verify(sessiontokenz, process.env.KEY_session);
-      console.log(" inside decode", decoded);
-  
-      if(decoded.username === sessionusername) {
-        return res.json({ valid: true, username: decoded.username });
-      } else {
-        return res.json({ valid: false, message: "Invalid token" });
-      }
-  });
+
+router.get('/dashboard',async (req, res) => {
+    console.log("sessiontokenz ",sessiontokenz)
+    if (!sessiontokenz) {
+        return res.status(401).json({ status: false, message: "Token not provided" });
+    }
+    const decoded= await jwt.verify(sessiontokenz, process.env.JWT_SECRET)
+    if(decoded.username==sessionusername){
+        res.json({ status: true, message: "Token is valid", username: decoded.username, Appemail: decoded.Appemail });
+    }
+    else {
+        res.json({status :false  ,message :"toke is out dated"})
+    }
+    
+});
+
+router.post('/logout', (req, res) => {
+    // Invalidate the token by not sending any response, or you can return a success message if needed
+    sessiontokenz=null;
+    sessionusername=null;
+    res.status(200).json({ status: true, message: "Logout successful" });
+});
 
 router.post('/signup',async (req,res)=>{
     const {username,email,password}=req.body
@@ -197,8 +172,8 @@ router.post('/signup',async (req,res)=>{
 
      const hashpassword=await bcrypt.hash(password ,10)
       const newUser= new User({
-          username,
-          email,
+          username:username,
+          email:email,
           password:password,
       })
           await newUser.save()
@@ -238,6 +213,7 @@ router.post('/signup',async (req,res)=>{
     }
 
 })
+
 router.post('/Verification',async (req,res)=>{
     const {code} =req.body
     console.log(code)
@@ -254,82 +230,68 @@ router.post('/Verification',async (req,res)=>{
     }
 
 }) 
+
 router.post('/login', async (req, res) => {
     const { Email, password } = req.body;
-  
-    // Find the user by email
-    const user = await Appdb.findOne({ email:Email });
-    if (!user) {
-      return res.json({ status: false, message: 'Invalid email' });
+
+    try {
+        const user = await Appdb.findOne({ email: Email });
+
+        if (!user) {
+            return res.status(404).json({ status: false, message: "Email not found" });
+        }
+        sessionusername= user.username
+        console.log("sessionusername",sessionusername)
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (passwordMatch) {
+            const token = await  jwt.sign({
+                username: user.username,
+                Appemail: user.Appemail,
+                Apppassword: user.AppPassword
+            }, process.env.JWT_SECRET, { expiresIn: '2h' });
+            sessiontokenz=token;
+            console.log("sessiontokenz",sessiontokenz)
+
+            return res.json({ status: true, message: "Successfully logged in"});
+        } else {
+            return res.status(401).json({ status: false, message: "Incorrect password" });
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        return res.status(500).json({ status: false, message: "Internal Server Error" });
     }
-  
-    // Compare the provided password with the stored hash
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.json({ status: false, message: 'Invalid  password' });
-    }
-  
-    // Generate a JWT token
-    sessionusername=user;
-    const token = jwt.sign({ id: user._id }, process.env.KEY, { expiresIn: '1h' });
-    sessiontokenz=token;
-    // Set the token cookie
-    // res.cookie('token', token, { httpOnly: true,secure: true, sameSite: 'none'  });
-  
-    // Return a success response
-    return res.json({ status: true, message: 'Logged in successfully' });
-  });
-// router.post('/Login' , async (req,res)=>{
-//     const{Email,password}=req.body;
-  
-//     console.log(password,Email)
-  
+});
+
+// router.post('/Login', async (req, res) => {
+//     const { Email, password } = req.body;
+
+//     console.log(password, Email);
+
 //     const emailmatch = await Appdb.findOne({ email: Email });
-//     console.log(emailmatch)
-//     if(emailmatch==null){
-//         return res.json({status:false,message:"Email not found"})
+//     console.log(emailmatch);
+//     if (emailmatch == null) {
+//         return res.json({ status: false, message: "Email not found" });
 //     }
 //     const passwordMatch = await bcrypt.compare(password, emailmatch.password);
-//     if (passwordMatch){
+//     if (passwordMatch) {
 //         console.log("Password comparison result: true");
-//         // req.session.username = emailmatch.username
-//         // console.log(req.session.username)
-//         sessionusername = emailmatch.username;
-//         sessiontokenz =  await jwt.sign({ username: emailmatch.username }, process.env.KEY_session, { expiresIn: '2h' });
-//         console.log("jwtsessiontoken create",sessiontokenz,sessionusername)
-//         res.cookie('token', sessiontokenz, { httpOnly: true }); // Set the JWT token as an HTTP-only cookie
-//         return res.json({status:true,message:" successfully login"})
+//         const token = jwt.sign({
+//             username: emailmatch.username,
+//             Appemail: emailmatch.Appemail,
+//             Apppassword: emailmatch.AppPassword
+//         }, process.env.JWT_SECRET, { expiresIn: '2h' });
+
+//         req.session.token = token;
+//         req.session.username = emailmatch.username;
+//         req.session.Appemail =emailmatch.Appemail;
+//         console.log("req.session.username",req.session.username);
+//         console.log("req.session.Appemail",req.session.Appemail);
+//         return res.json({ status: true, message: "Successfully logged in", token });
 //     } else {
 //         console.log("Password comparison result: false");
-//         return res.json({status:false,message:" Enter Password correctly login "})
+//         return res.json({ status: false, message: "Enter Password correctly to login" });
 //     }
-//   })
-
-// router.post('/Login' , async (req,res)=>{
-    
-// const{Email,password}=req.body;
-
-
-// console.log(password,Email)
-
-// const emailmatch = await Appdb.findOne({ email: Email });
-// console.log(emailmatch)
-// if(emailmatch==null){
-//     return res.json({status:false,message:"Email not found"})
-// }
-// const passwordMatch = await bcrypt.compare(password, emailmatch.password);
-// if (passwordMatch){
-//     console.log("Password comparison result: true");
-//     req.session.username = emailmatch.username
-//     console.log(req.session.username)
-//     sessionusername=emailmatch.username
-//     return res.json({status:true,message:" successfully login"})
-// } else {
-//     console.log("Password comparison result: false");
-//     return res.json({status:false,message:" Enter Password correctly login "})
-// }
-
-// })
+// });
 
 router.post('/AppPasssword', async (req, res) => {
     const { Appemail, AppPassword } = req.body;
