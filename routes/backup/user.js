@@ -17,15 +17,9 @@ var tempemail;
 var sessionusername;
 var globaldecoded;
 var sessiontokenz;
-var token ;
 router.get('/',(req,res)=>{
     res.json("Hello")
 })
-
-router.get('/getusername',async(req,res)=>{
-    return res.json({status:true,sessionusername:sessionusername})
-})
-
 router.post('/Forgotpassword', async (req, res) => {
     const { email } = req.body
     console.log(email)
@@ -33,7 +27,7 @@ router.post('/Forgotpassword', async (req, res) => {
         const user = await Appdb.findOne({ email:email })
         if (!user) {
             console.log("usernot found in appdb",user)
-            return res.json({ status:false,message: "User  not registered Kindly Register Yourself" })
+            return res.json({ status:false,message: "user  not registered" })
         }
         const tokens = jwt.sign({ id: user._id }, process.env.KEY, { expiresIn: '2h' });
 
@@ -54,10 +48,10 @@ router.post('/Forgotpassword', async (req, res) => {
 
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
-                
+                //   console.log(error);
                 return res.json({ message: "email not  sent" })
             } else {
-                
+                //   console.log('Email sent: ' + info.response);
                 return res.json({ status: true, message: "email sent" })
             }
         });
@@ -65,7 +59,6 @@ router.post('/Forgotpassword', async (req, res) => {
 
     catch (err) {
         console.log(err)
-        return res.json({status:false ,message:"There is an Issue kindly Try later!"})
 
     }
 })
@@ -79,27 +72,20 @@ router.post("/resetPassword/:token", async (req, res) => {
         const id = decoded.id;
         const hashPassword = await bcrypt.hash(password, 10);
         await Appdb.findByIdAndUpdate({ _id: id }, { password: hashPassword });
-        return res.json({ status: true, message: "Updated password" });
+        return res.json({ status: true, message: "updated password" });
     } catch (err) {
-        return res.json({status:false ,message:"Invalid token"});
+        return res.json("invalid token");
     }
 });
 
 router.post('/ChetakMail', async (req,res)=>{
-    try{
-
     const { emails,textmsg,subject,htmlFile,name} = req.body;
-    console.log(emails,textmsg,subject,htmlFile,name )
-    const Numberofemails=emails.length;
-    if (Numberofemails >  100){
-        return res.json({status:false , message :"Can,t send Emails more than 200 At a time Reduce You list Under 100"})
-     }
-     console.log("Number of emails ",Numberofemails)
+    console.log(emails,textmsg,subject,htmlFile,name ) 
     const doc = await Appdb.findOne({ username:name });
     const appemail = await doc.Appemail;
     const apppassword = await doc.AppPassword;
     console.log(appemail,apppassword)
-    if(htmlFile){
+    
     for(let j=0;j<emails.length-1;j++){
         const currentemail=emails[j]
         console.log("currentemail/sessionusername",currentemail,sessionusername)
@@ -111,7 +97,6 @@ router.post('/ChetakMail', async (req,res)=>{
             })
             await savesentmail.save()
     }
-    
 
     try {
       const transporter = nodemailer.createTransport({
@@ -122,18 +107,15 @@ router.post('/ChetakMail', async (req,res)=>{
           pass: `${apppassword}` 
         }
       });
-      
       for (let i=0; i<emails.length-1; i++) {
         let email= emails[i]
-       
-       
       await   transporter.sendMail({
           from: `${appemail}`,
           to: email,
           subject: `${subject}`,
-          html:htmlFile
+          text: `${textmsg}`,
+          html:`${htmlFile}`
           
-
       });
       console.log('Emails sending',i);
       }
@@ -143,95 +125,29 @@ router.post('/ChetakMail', async (req,res)=>{
     } catch (error) {
       console.error('Error sending emails:', error);
       return res.json({status:true, error: 'Email sent successfully' });
-    }}
-
-//body sending
-
-    else{
-        for(let j=0;j<emails.length-1;j++){
-            const currentemail=emails[j]
-            
-                const savesentmail=new Sentmaildb({
-                    sentemail:currentemail,
-                    byuser:sessionusername,
-                    
-    
-                })
-                await savesentmail.save()
-        }
-    
-        try {
-          const transporter = nodemailer.createTransport({
-            // configure your email service
-            service: 'Gmail',
-            auth: {
-              user: `${appemail}`,
-              pass: `${apppassword}` 
-            }
-          });
-          for (let i=0; i<emails.length-1; i++) {
-            let email= emails[i]
-           
-            
-          await   transporter.sendMail({
-              from: `${appemail}`,
-              to: email,
-              subject: `${subject}`,
-             text:`${textmsg}`
-             
-              
-          });
-          console.log('Emails sending',i);
-          }
-          console.log('Emails sent successfully');
-          
-          return res.json({ status: true, message: 'Emails final successfully'});
-        } catch (error) {
-          console.error('Error sending emails:', error);
-          return res.json({status:true, error: 'Email sent successfully' });
-        }
-
-
-
-
-    }}
-    catch(error){
-        return res.json({status :false ,message:"Unexpected Error"})
     }
   });
 
 router.get('/dashboard',async (req, res) => {
-   try{
-    const decoded= await jwt.verify(sessiontokenz, process.env.JWT_SECRET)
-    
-    if (!sessiontokenz === token || decoded.exp - Date.now()/1000 < 5) {
-        
-        sessionusername=null;
-        token =null;
-        return res.json({ status:false ,message: "Tok",sessiontokenz:sessiontokenz,token:token });
-    }
-
+    console.log("sessiontokenz ",sessiontokenz)
     if (!sessiontokenz) {
-        return res.json({ status: false, message: "session expired" });
+        return res.status(401).json({ status: false, message: "Token not provided" });
     }
-    
+    const decoded= await jwt.verify(sessiontokenz, process.env.JWT_SECRET)
     if(decoded.username==sessionusername){
         res.json({ status: true, message: "Token is valid", username: decoded.username, Appemail: decoded.Appemail });
     }
     else {
-        res.json({status :false  ,message :"Toke is out Dated"})
+        res.json({status :false  ,message :"toke is out dated"})
     }
-}catch(error){
-    return res.json({status:false,message:"You are logout >>Session Over!"})
-}
+    
 });
 
 router.post('/logout', (req, res) => {
     // Invalidate the token by not sending any response, or you can return a success message if needed
     sessiontokenz=null;
     sessionusername=null;
-    token=null;
-    res.json({ status: true, message: "Logout successful" });
+    res.status(200).json({ status: true, message: "Logout successful" });
 });
 
 router.post('/signup',async (req,res)=>{
@@ -264,7 +180,7 @@ router.post('/signup',async (req,res)=>{
           tempemail=email
           tempusername=username
           temppassword=hashpassword
-        
+        //   return res.json({message:"Recorded successfully"})
     try {
         var transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -283,10 +199,10 @@ router.post('/signup',async (req,res)=>{
 
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
-               
+                //   console.log(error);
                 return res.json({status:false, message: "Otp not  sent" })
             } else {
-               
+                //   console.log('Email sent: ' + info.response);
                 return res.json({ status: true, message: "Otp sent" })
             }
         });
@@ -294,7 +210,6 @@ router.post('/signup',async (req,res)=>{
 
     catch (err) {
         console.log(err)
-        
     }
 
 })
@@ -306,21 +221,11 @@ router.post('/Verification',async (req,res)=>{
 
     if (otpmatch) {
         await Otpdb.deleteOne({ otp: code })
-        const saveApppassword = new Appdb({
-            // Appemail: Appemail,
-            // AppPassword: AppPassword,
-            username:tempusername,
-            email:tempemail,
-            password:temppassword,
-            
-        });
-        await saveApppassword.save();
         return res.json({ status: true, message: "OTP matched" });
-
         
     } else {
         
-        return res.json({ status: false, message: "OTP not match" });
+        return res.json({ status: false, message: "OTP does not match" });
 
     }
 
@@ -333,37 +238,66 @@ router.post('/login', async (req, res) => {
         const user = await Appdb.findOne({ email: Email });
 
         if (!user) {
-            return res.json({ status: false, message: "Email not found" });
+            return res.status(404).json({ status: false, message: "Email not found" });
         }
         sessionusername= user.username
-        
+        console.log("sessionusername",sessionusername)
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (passwordMatch) {
-             token = await  jwt.sign({
+            const token = await  jwt.sign({
                 username: user.username,
                 Appemail: user.Appemail,
                 Apppassword: user.AppPassword
             }, process.env.JWT_SECRET, { expiresIn: '2h' });
             sessiontokenz=token;
-            
+            console.log("sessiontokenz",sessiontokenz)
+
             return res.json({ status: true, message: "Successfully logged in"});
         } else {
-            return res.json({ status: false, message: "Incorrect password" });
+            return res.status(401).json({ status: false, message: "Incorrect password" });
         }
     } catch (error) {
         console.error('Login error:', error);
-        return res.json({ status: false, message: "Internal Server Error" });
+        return res.status(500).json({ status: false, message: "Internal Server Error" });
     }
 });
 
+// router.post('/Login', async (req, res) => {
+//     const { Email, password } = req.body;
 
+//     console.log(password, Email);
+
+//     const emailmatch = await Appdb.findOne({ email: Email });
+//     console.log(emailmatch);
+//     if (emailmatch == null) {
+//         return res.json({ status: false, message: "Email not found" });
+//     }
+//     const passwordMatch = await bcrypt.compare(password, emailmatch.password);
+//     if (passwordMatch) {
+//         console.log("Password comparison result: true");
+//         const token = jwt.sign({
+//             username: emailmatch.username,
+//             Appemail: emailmatch.Appemail,
+//             Apppassword: emailmatch.AppPassword
+//         }, process.env.JWT_SECRET, { expiresIn: '2h' });
+
+//         req.session.token = token;
+//         req.session.username = emailmatch.username;
+//         req.session.Appemail =emailmatch.Appemail;
+//         console.log("req.session.username",req.session.username);
+//         console.log("req.session.Appemail",req.session.Appemail);
+//         return res.json({ status: true, message: "Successfully logged in", token });
+//     } else {
+//         console.log("Password comparison result: false");
+//         return res.json({ status: false, message: "Enter Password correctly to login" });
+//     }
+// });
 
 router.post('/AppPasssword', async (req, res) => {
-    const { Appemail, AppPassword ,username} = req.body;
-    const Appemailfounded= await Appdb.findOne({Appemail:Appemail})
+    const { Appemail, AppPassword } = req.body;
+    const Appemailfounded= await Appdb.findOne({Appemail})
 
     console.log(Appemail, AppPassword);
-    console.log("username",username)
     if(Appemailfounded){
         return res.json({status:false,message:"This App Email Already in use on Our Server Kindly Choose another one "})
     }
@@ -390,11 +324,15 @@ router.post('/AppPasssword', async (req, res) => {
             } else {
                 console.log('Email sent: ' + info.response);
                 try {
-                    
-                    await Appdb.updateOne({ username: username }, { Appemail: Appemail });
-                    await Appdb.updateOne({ username: username }, { AppPassword: AppPassword});
-                    console.log("saving data")
-                    
+                    const saveApppassword = new Appdb({
+                        Appemail: Appemail,
+                        AppPassword: AppPassword,
+                        username:tempusername,
+                        email:tempemail,
+                        password:temppassword,
+                        
+                    });
+                    await saveApppassword.save();
                     return res.json({ status: true, message: "Working App password" });
                 } catch (err) {
                     console.log(err);
