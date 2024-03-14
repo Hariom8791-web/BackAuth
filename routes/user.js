@@ -189,10 +189,6 @@ router.post('/ChetakMail', async (req,res)=>{
           console.error('Error sending emails:', error);
           return res.json({status:true, error: 'Email sent successfully' });
         }
-
-
-
-
     }}
     catch(error){
         return res.json({status :false ,message:"Unexpected Error"})
