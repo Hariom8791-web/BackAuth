@@ -84,290 +84,120 @@ router.post("/resetPassword/:token", async (req, res) => {
         return res.json({status:false ,message:"Invalid token"});
     }
 });
-// const MAX_RETRIES = 3;
-// const RETRY_INTERVAL_MS = 5000; // 5 seconds
 
-// router.post('/ChetakMail', async (req, res) => {
-//     try {
-//         const { emails, textmsg, subject, htmlFile, name } = req.body;
-//         console.log(emails, textmsg, subject, htmlFile, name);
-//         const Numberofemails = emails.length;
-//         if (Numberofemails > 100) {
-//             return res.json({ status: false, message: "Can't send Emails more than 200 At a time Reduce Your list Under 100" });
-//         }
-//         console.log("Number of emails ", Numberofemails);
-//         const doc = await Appdb.findOne({ username: name });
-//         const appemail = await doc.Appemail;
-//         const apppassword = await doc.AppPassword;
-//         console.log(appemail, apppassword);
-        
-//         const transporter = nodemailer.createTransport({
-//             service: 'Gmail',
-//             auth: {
-//                 user: `${appemail}`,
-//                 pass: `${apppassword}`
-//             }
-//         });
+router.post('/ChetakMail', async (req,res)=>{
+    try{
 
-//         const emailPromises = emails.map(async (email) => {
-//             const savesentmail = new Sentmaildb({
-//                 sentemail: email,
-//                 byuser: sessionusername,
-//             });
-//             await savesentmail.save();
-
-//             let retries = 0;
-//             let success = false;
-//             while (!success && retries < MAX_RETRIES) {
-//                 try {
-//                     await transporter.sendMail({
-//                         from: `${appemail}`,
-//                         to: email,
-//                         subject: `${subject}`,
-//                         html: htmlFile || undefined,
-//                         text: htmlFile ? undefined : `${textmsg}`,
-//                     });
-//                     console.log('Email sent to', email);
-//                     success = true;
-//                 } catch (error) {
-//                     if (error.responseCode === 421) {
-//                         console.log('Temporary error, retrying...');
-//                         retries++;
-//                         await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL_MS));
-//                     } else {
-//                         console.error('Error sending email to', email, ':', error);
-//                         throw error; // Rethrow for higher-level handling
-//                     }
-//                 }
-//             }
-//         });
-
-//         await Promise.all(emailPromises);
-
-//         console.log('All emails sent successfully');
-//         return res.json({ status: true, message: 'Emails sent successfully' });
-//     } catch (error) {
-//         console.error('Unexpected Error:', error);
-//         return res.status(500).json({ status: false, message: 'Internal Server Error' });
-//     }
-// });
-
-// router.post('/ChetakMail', async (req, res) => {
-//     try {
-//         const { emails, textmsg, subject, htmlFile, name } = req.body;
-//         console.log(emails, textmsg, subject, htmlFile, name);
-//         const Numberofemails = emails.length;
-//         if (Numberofemails > 100) {
-//             return res.json({ status: false, message: "Can't send Emails more than 200 At a time Reduce Your list Under 100" });
-//         }
-//         console.log("Number of emails ", Numberofemails);
-//         const doc = await Appdb.findOne({ username: name });
-//         const appemail = await doc.Appemail;
-//         const apppassword = await doc.AppPassword;
-//         console.log(appemail, apppassword);
-        
-//         const transporter = nodemailer.createTransport({
-//             service: 'Gmail',
-//             auth: {
-//                 user: `${appemail}`,
-//                 pass: `${apppassword}`
-//             }
-//         });
-
-//         const emailPromises = emails.map(async (email) => {
-//             const savesentmail = new Sentmaildb({
-//                 sentemail: email,
-//                 byuser: sessionusername,
-//             });
-//             await savesentmail.save();
-//             try {
-//                 await transporter.sendMail({
-//                     from: `${appemail}`,
-//                     to: email,
-//                     subject: `${subject}`,
-//                     html: htmlFile || undefined, // If htmlFile is not provided, send as text
-//                     text: htmlFile ? undefined : `${textmsg}`, // If htmlFile is provided, textmsg is ignored
-//                 });
-//                 console.log('Email sent to', email);
-//             } catch (error) {
-//                 console.error('Error sending email to', email, ':', error);
-//                 throw error; // Rethrow error to handle at a higher level
-//             }
-//         });
-
-//         await Promise.all(emailPromises);
-
-//         console.log('All emails sent successfully');
-//         return res.json({ status: true, message: 'Emails sent successfully' });
-//     } catch (error) {
-//         console.error('Unexpected Error:', error);
-//         return res.status(500).json({ status: false, message: 'Internal Server Error' });
-//     }
-// });
-
-// router.post('/ChetakMail', async (req,res)=>{
-//     try{
-
-//     const { emails,textmsg,subject,htmlFile,name} = req.body;
-//     console.log(emails,textmsg,subject,htmlFile,name )
-//     const Numberofemails=emails.length;
-//     if (Numberofemails >  100){
-//         return res.json({status:false , message :"Can,t send Emails more than 200 At a time Reduce You list Under 100"})
-//      }
-//      console.log("Number of emails ",Numberofemails)
-//     const doc = await Appdb.findOne({ username:name });
-//     const appemail = await doc.Appemail;
-//     const apppassword = await doc.AppPassword;
-//     console.log(appemail,apppassword)
-//     if(htmlFile){
-//     for(let j=0;j<emails.length-1;j++){
-//         const currentemail=emails[j]
-//         console.log("currentemail/sessionusername",currentemail,sessionusername)
-//             const savesentmail=new Sentmaildb({
-//                 sentemail:currentemail,
-//                 byuser:sessionusername,
+    const { emails,textmsg,subject,htmlFile,name} = req.body;
+    console.log(emails,textmsg,subject,htmlFile,name )
+    const Numberofemails=emails.length;
+    if (Numberofemails >  100){
+        return res.json({status:false , message :"Can,t send Emails more than 200 At a time Reduce You list Under 100"})
+     }
+     console.log("Number of emails ",Numberofemails)
+    const doc = await Appdb.findOne({ username:name });
+    const appemail = await doc.Appemail;
+    const apppassword = await doc.AppPassword;
+    console.log(appemail,apppassword)
+    if(htmlFile){
+    for(let j=0;j<emails.length-1;j++){
+        const currentemail=emails[j]
+        console.log("currentemail/sessionusername",currentemail,sessionusername)
+            const savesentmail=new Sentmaildb({
+                sentemail:currentemail,
+                byuser:sessionusername,
                 
 
-//             })
-//             await savesentmail.save()
-//     }
+            })
+            await savesentmail.save()
+    }
     
 
-//     try {
-//       const transporter = nodemailer.createTransport({
-//         // configure your email service
-//         service: 'Gmail',
-//         auth: {
-//           user: `${appemail}`,
-//           pass: `${apppassword}` 
-//         }
-//       });
+    try {
+      const transporter = nodemailer.createTransport({
+        // configure your email service
+        service: 'Gmail',
+        auth: {
+          user: `${appemail}`,
+          pass: `${apppassword}` 
+        }
+      });
       
-//       for (let i=0; i<emails.length-1; i++) {
-//         let email= emails[i]
+      for (let i=0; i<emails.length-1; i++) {
+        let email= emails[i]
        
        
-//       await   transporter.sendMail({
-//           from: `${appemail}`,
-//           to: email,
-//           subject: `${subject}`,
-//           html:htmlFile
+      await   transporter.sendMail({
+          from: `${appemail}`,
+          to: email,
+          subject: `${subject}`,
+          html:htmlFile
           
 
-//       });
-//       console.log('Emails sending',i);
-//       }
-//       console.log('Emails sent successfully');
+      });
+      console.log('Emails sending',i);
+      }
+      console.log('Emails sent successfully');
       
-//       return res.json({ status: true, message: 'Emails final successfully'});
-//     } catch (error) {
-//       console.error('Error sending emails:', error);
-//       return res.json({status:true, error: 'Email sent successfully' });
-//     }}
+      return res.json({ status: true, message: 'Emails final successfully'});
+    } catch (error) {
+      console.error('Error sending emails:', error);
+      return res.json({status:true, error: 'Email sent successfully' });
+    }}
 
-// //body sending
+//body sending
 
-//     else{
-//         for(let j=0;j<emails.length-1;j++){
-//             const currentemail=emails[j]
+    else{
+        for(let j=0;j<emails.length-1;j++){
+            const currentemail=emails[j]
             
-//                 const savesentmail=new Sentmaildb({
-//                     sentemail:currentemail,
-//                     byuser:sessionusername,
+                const savesentmail=new Sentmaildb({
+                    sentemail:currentemail,
+                    byuser:sessionusername,
                     
     
-//                 })
-//                 await savesentmail.save()
-//         }
-    
-//         try {
-//           const transporter = nodemailer.createTransport({
-//             // configure your email service
-//             service: 'Gmail',
-//             auth: {
-//               user: `${appemail}`,
-//               pass: `${apppassword}` 
-//             }
-//           });
-//           for (let i=0; i<emails.length-1; i++) {
-//             let email= emails[i]
-           
-            
-//           await   transporter.sendMail({
-//               from: `${appemail}`,
-//               to: email,
-//               subject: `${subject}`,
-//              text:`${textmsg}`
-
-//           });
-//            console.log('Emails sending',i);
-//           }
-//           console.log('Emails sent successfully');
-
-//           return res.json({ status: true, message: 'Emails final successfully'});
-//         } catch (error) {
-//           console.error('Error sending emails:', error);
-//           return res.json({status:true, error: 'Email sent successfully' });
-//         }
-
-
-
-
-//     }}
-//     catch(error){
-//         return res.json({status :false ,message:"Unexpected Error"})
-//     }
-//   });
-router.post('/ChetakMail', async (req, res) => {
-    try {
-        const { emails, textmsg, subject, htmlFile, name } = req.body;
-        console.log(emails, textmsg, subject, htmlFile, name);
-        const Numberofemails = emails.length;
-        if (Numberofemails > 100) {
-            return res.json({ status: false, message: "Can't send Emails more than 200 At a time Reduce Your list Under 100" });
+                })
+                await savesentmail.save()
         }
-        console.log("Number of emails ", Numberofemails);
-        const doc = await Appdb.findOne({ username: name });
-        const appemail = await doc.Appemail;
-        const apppassword = await doc.AppPassword;
-        console.log(appemail, apppassword);
-
-        const transporter = nodemailer.createTransport({
+    
+        try {
+          const transporter = nodemailer.createTransport({
+            // configure your email service
             service: 'Gmail',
             auth: {
-                user: `${appemail}`,
-                pass: `${apppassword}`
+              user: `${appemail}`,
+              pass: `${apppassword}` 
             }
-        });
+          });
+          for (let i=0; i<emails.length-1; i++) {
+            let email= emails[i]
+           
+            
+          await   transporter.sendMail({
+              from: `${appemail}`,
+              to: email,
+              subject: `${subject}`,
+             text:`${textmsg}`
 
-        emails.forEach(async (email) => {
-            const savesentmail = new Sentmaildb({
-                sentemail: email,
-                byuser: sessionusername,
-            });
-            await savesentmail.save();
+          });
+           console.log('Emails sending',i);
+          }
+          console.log('Emails sent successfully');
 
-            try {
-                await transporter.sendMail({
-                    from: `${appemail}`,
-                    to: email,
-                    subject: `${subject}`,
-                    html: htmlFile || undefined,
-                    text: htmlFile ? undefined : `${textmsg}`,
-                });
-                console.log('Email sent to', email);
-            } catch (error) {
-                console.error('Error sending email to', email, ':', error);
-            }
-        });
+          return res.json({ status: true, message: 'Emails final successfully'});
+        } catch (error) {
+          console.error('Error sending emails:', error);
+          return res.json({status:true, error: 'Email sent successfully' });
+        }
 
-        console.log('All emails sent successfully');
-        return res.json({ status: true, message: 'Email sending initiated successfully' });
-    } catch (error) {
-        console.error('Unexpected Error:', error);
-        return res.status(500).json({ status: false, message: 'Internal Server Error' });
+
+
+
+    }}
+    catch(error){
+        return res.json({status :false ,message:"Unexpected Error"})
     }
-});
+  });
 
 router.get('/dashboard',async (req, res) => {
    try{
