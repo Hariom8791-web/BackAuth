@@ -1,35 +1,36 @@
-import express from 'express'
-import dotenv from 'dotenv'
-import mongoose from 'mongoose'
-import cors from 'cors'
+import express from 'express';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import session from 'express-session';
-import bodyParser from 'body-parser';
-dotenv.config()
-import { UserRouter } from './routes/user.js'
+import { UserRouter } from './routes/user.js';
 
-const app=express()
-app.use(bodyParser.json())
-app.use(cookieParser())
+dotenv.config();
 
-app.use(express.urlencoded({ extended: true }));
+const app = express();
+
 app.use(express.json());
-app.use(bodyParser.json());
-app.use(cors({
-    //front end jaha host ho rha h / nhi ayega
-    origin:["https://front-auth-mu.vercel.app"],
-    method :["POST","GET"],
-    credentials:true,
-}))
-app.get('/',(req,res)=>{
-     res.json('hello ')
-})
-app.use('/auth',UserRouter)
-app.listen(process.env.PORT,()=>{
-    console.log("server is running")
-})
-mongoose.connect('mongodb+srv://hariomsingh4274:FJFZiGBqhAZRv3SR@cluster0.vlrs0o5.mongodb.net/Base?retryWrites=true&w=majority&appName=Cluster0')
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+const corsOptions = {
+    origin: 'https://front-auth-mu.vercel.app', // Replace this with your frontend URL
+    credentials: true ,
+    allowedHeaders: ['Content-Type', 'Authorization','*'],
+    optionSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 
-//mongoose.connect('mongodb://localhost:27017/Base')
+app.get('/', (req, res) => {
+    res.json('hello');
+});
 
+app.use('/auth', UserRouter);
+
+app.listen(process.env.PORT, () => {
+    console.log("Server is running");
+});
+
+mongoose.connect('mongodb://localhost:27017/Base2');
