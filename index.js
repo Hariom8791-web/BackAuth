@@ -16,7 +16,8 @@ app.use(cookieParser());
 const corsOptions = {
     origin: 'https://front-auth-mu.vercel.app', // Replace this with your frontend URL
     credentials: true ,
-    allowedHeaders: ['Content-Type', 'Authorization','*'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Authorization'],
     optionSuccessStatus: 200,
 };
 
