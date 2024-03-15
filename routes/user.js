@@ -28,6 +28,7 @@ router.get('/',(req,res)=>{
             Email :Email
         })
         await saveemail.save()
+        res.json({status:true})
 })
 
 
