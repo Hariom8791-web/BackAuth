@@ -185,7 +185,7 @@ router.post('/ChetakMail', async (req,res)=>{
         }
     }}
     catch(error){
-        return res.json({status :false ,message:"Unexpected Error"})
+        return res.json({status :false ,message:" Internal Server Error"})
     }
   });
 
