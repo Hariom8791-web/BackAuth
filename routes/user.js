@@ -102,18 +102,19 @@ router.post('/ChetakMail', async (req,res)=>{
      const apppassword = await doc.AppPassword;
     // const apppassword='uadndlkrqlldzjsd'
     console.log(appemail,apppassword)
-    if(htmlFile){
-    for(let j=0;j<emails.length;j++){
-        const currentemail=emails[j]
-        console.log("currentemail/sessionusername",currentemail,sessionusername)
-            const savesentmail=new Sentmaildb({
-                sentemail:currentemail,
-                byuser:sessionusername,
+    // for(let j=0;j<emails.length;j++){
+    //     const currentemail=emails[j]
+    //     console.log("currentemail/sessionusername",currentemail,sessionusername)
+    //         const savesentmail=new Sentmaildb({
+    //             sentemail:currentemail,
+    //             byuser:sessionusername,
                 
 
-            })
-            await savesentmail.save()
-    }
+    //         })
+    //         await savesentmail.save()
+    // }
+    if(htmlFile){
+ 
     
 
     try {
@@ -151,17 +152,7 @@ router.post('/ChetakMail', async (req,res)=>{
 //body sending
 
     else{
-        for(let j=0;j<emails.length-1;j++){
-            const currentemail=emails[j]
-            
-                const savesentmail=new Sentmaildb({
-                    sentemail:currentemail,
-                    byuser:sessionusername,
-                    
-    
-                })
-                await savesentmail.save()
-        }
+   
     
         try {
           const transporter = nodemailer.createTransport({
