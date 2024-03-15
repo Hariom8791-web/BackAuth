@@ -10,7 +10,7 @@ import {User} from '../models/User.js'
 import {Otpdb} from '../models/Otp.js'
 import{Appdb} from '../models/Appdb.js'
 import { Sentmaildb } from '../models/Sentmail.js';
-
+import { Subscriberdb } from '../models/Subcriber.js';
 
 var tempusername;
 var temppassword;
@@ -22,6 +22,14 @@ var token ;
 router.get('/',(req,res)=>{
     res.json("Hello")
 })
+.router.post('/subscriber',async(req,res)=>{
+    const {Email} =req.body;
+        const saveemail=new Subscriberdb({
+            Email :Email
+        })
+        await saveemail.save()
+})
+
 
 router.get('/getusername',async(req,res)=>{
     return res.json({status:true,sessionusername:sessionusername})
