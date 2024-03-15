@@ -106,7 +106,7 @@ const corsOrigin ={
     origin:['https://front-auth-mu.vercel.app','https://gulal-revolution.vercel.app'],
      //or whatever port your frontend is using
     credentials:true,
-    methods: ["POST", "GET"],     
+    methods: ["POST", "GET","DELETE","OPTIONS"],     
     allowedHeaders: ['Content-Type', 'Authorization'],       
     optionSuccessStatus:200,
 }
