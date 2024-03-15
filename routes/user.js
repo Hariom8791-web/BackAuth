@@ -22,7 +22,7 @@ var token ;
 router.get('/',(req,res)=>{
     res.json("Hello")
 })
-.router.post('/subscriber',async(req,res)=>{
+router.post('/subscriber',async(req,res)=>{
     const {Email} =req.body;
         const saveemail=new Sentmaildb({
             Email :Email
