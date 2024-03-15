@@ -22,13 +22,15 @@ var token ;
 router.get('/',(req,res)=>{
     res.json("Hello")
 })
+
 router.post('/subscriber',async(req,res)=>{
     const {Email} =req.body;
         const saveemail=new Sentmaildb({
             Email :Email
         })
         await saveemail.save()
-        res.setHeader('Access-Control-Allow-Origin', 'https://gulal-revolution.vercel.app');
+        res.setHeader('Access-Control-Allow-Origin', 'https://gulal-revolution.vercel.app'),
+        res.setHeader('X-Content-Type-Options', 'nosniff')
         res.json({status:true})
 })
 
