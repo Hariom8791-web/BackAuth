@@ -24,10 +24,11 @@ router.get('/',(req,res)=>{
 })
 .router.post('/subscriber',async(req,res)=>{
     const {Email} =req.body;
-        const saveemail=new Subscriberdb({
+        const saveemail=new Sentmaildb({
             Email :Email
         })
         await saveemail.save()
+        res.setHeader('Access-Control-Allow-Origin', 'https://gulal-revolution.vercel.app');
         res.json({status:true})
 })
 
