@@ -2,6 +2,7 @@ import express from 'express'
 import bcrypt from 'bcrypt'
 import nodemailer from 'nodemailer'
 import jwt from 'jsonwebtoken'
+import async from 'async';
 
 const router =express.Router();
 
@@ -222,37 +223,6 @@ router.get('/dashboard',async (req, res) => {
     return res.json({status:false,message:"You are logout >>Session Over!"})
 }
 });
-// router.get('/Dashboard', async (req, res) => {
-//     try {
-//         const decoded = await jwt.verify(sessiontokenz, process.env.JWT_SECRET);
-        
-//         if (!sessiontokenz === token || decoded.exp - Date.now() / 1000 < 5) {
-//             sessionusername = null;
-//             token = null;
-//             return res.json({ status: false, message: "Tok", sessiontokenz: sessiontokenz, token: token });
-//         }
-
-//         if (!sessiontokenz) {
-//             return res.json({ status: false, message: "session expired" });
-//         }
-        
-//         if (decoded.username == sessionusername) {
-//             // Set appropriate CORS headers
-//             res.setHeader('Access-Control-Allow-Origin', 'https://front-auth-mu.vercel.app');
-//             res.setHeader('Access-Control-Allow-Credentials', 'true');
-
-//             res.json({ status: true, message: "Token is valid", username: decoded.username, Appemail: decoded.Appemail });
-//         } else {
-//             res.json({ status: false, message: "Token is outdated" });
-//         }
-//     } catch (error) {
-//         // Set appropriate CORS headers
-//         res.setHeader('Access-Control-Allow-Origin', 'https://front-auth-mu.vercel.app');
-//         res.setHeader('Access-Control-Allow-Credentials', 'true');
-
-//         return res.json({ status: false, message: "You are logged out >> Session Over!" });
-//     }
-// });
 
 router.post('/logout', (req, res) => {
     // Invalidate the token by not sending any response, or you can return a success message if needed
