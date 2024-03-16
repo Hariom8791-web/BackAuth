@@ -31,7 +31,7 @@ router.post('/subscriber',async(req,res)=>{
         await saveemail.save()
         res.setHeader('Access-Control-Allow-Origin', 'https://gulal-revolution.vercel.app'),
         res.setHeader('X-Content-Type-Options', 'nosniff')
-        res.json({status:true})
+        res.json({status:true,message:"Recorded successfully"})
 })
 
 
