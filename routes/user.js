@@ -62,7 +62,7 @@ router.post('/Forgotpassword', async (req, res) => {
             from: 'hariomsingh8791@gmail.com',
             to: email,
             subject: 'Reset Link for Password Brain Radar',
-            text: `http://localhost:5173/resetPassword/${tokens}`
+            text: `https://front-auth-mu.vercel.app/resetPassword/${tokens}`
         };
 
         transporter.sendMail(mailOptions, function (error, info) {
