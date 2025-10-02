@@ -103,7 +103,7 @@ app.use(cookieParser());
 // }));
 // app.use(cors(corsOptions));
 const corsOrigin ={
-    origin:['https://front-auth-mu.vercel.app','https://gulal-revolution.vercel.app'],
+    origin:['https://front-auth-mu.vercel.app','https://gulal-revolution.vercel.app','http://localhost:5173'],
      //or whatever port your frontend is using
     credentials:true,
     methods: ["POST", "GET","DELETE","OPTIONS"],     
